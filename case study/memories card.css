@@ -1,7 +1,9 @@
 body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background-image: url('audrey-jacquemot-bg-resize.jpg');
+      width: 100%;
+      height: 100%;
+      background-image: url('image/audrey-jacquemot-bg-resize.jpg');
      
 }
 body:before { 
@@ -9,7 +11,7 @@ body:before {
       position: fixed; 
       top: 0; bottom: 0; 
       width: 150px; /* độ rộng viền */ 
-      background-image: url('pngtree-space-doodle1-vector-png-image_6637052.png');
+      background-image: url('image/pngtree-space-doodle1-vector-png-image_6637052.png');
       background-color: aqua;
       background-position: left;
       left: 0; }
@@ -18,7 +20,7 @@ body:after {
       position: fixed; 
       top: 0; bottom: 0; 
       width: 150px; /* độ rộng viền */ 
-      background-image: url('pngtree-space-doodle1-vector-png-image_6637052.png');
+      background-image: url('image/pngtree-space-doodle1-vector-png-image_6637052.png');
       background-color: aqua;
       background-position: right;
       right: 0; }
@@ -26,9 +28,9 @@ body:after {
 h1 {
       font-family: 'Courier New', Courier, monospace;
       color: #333333;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      font-size: 500%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-size: 700%;
 }
 .button1{
       background-color: #271cbb; /* Màu nền xanh lá cây */
@@ -37,7 +39,8 @@ h1 {
       border: none; /* Không viền */
       border-radius: 5px; /* Bo góc */
       cursor: pointer; /* Hiệu ứng con trỏ khi di chuột */
-      font-size: 16px; /* Kích thước chữ */
+      font-size: 25px; /* Kích thước chữ */
+      border: 3px solid #ffffff;
 }
 .button2{
       background-color: #271cbb; /* Màu nền xanh lá cây */
@@ -46,7 +49,8 @@ h1 {
       border: none; /* Không viền */
       border-radius: 5px; /* Bo góc */
       cursor: pointer; /* Hiệu ứng con trỏ khi di chuột */
-      font-size: 16px; /* Kích thước chữ */
+      font-size: 25px; /* Kích thước chữ */
+      border: 3px solid #ffffff;
 }
 .card {
       width: 200px; 
@@ -58,7 +62,37 @@ h1 {
       border-radius: 10px; 
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
       cursor: pointer; transition: transform 0.3s; 
-      background-image: url('playing-card-back-side-isolated-on-white-clipping-path-included-2AY5GD0.jpg'); /* Gán ảnh nền */ 
       background-size: cover; /* Ảnh phủ toàn bộ khung */ 
       background-position: center ; /* Căn giữa ảnh */
+      perspective: 1000px;
 }
+.card-inner {
+      position: relative; 
+      width: 100%; 
+      height: 100%; 
+      transform-style: preserve-3d; 
+      transition: transform 0.6s; 
+      
+}
+.card.flipped .card-inner {
+      transform: rotateY(180deg); 
+}
+.card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: 2px solid #000000; 
+      border-radius: 10px; 
+}
+.card-front {
+      background: url('image/playing-card-back-side-isolated-on-white-clipping-path-included-2AY5GD0.jpg') center center/cover no-repeat;
+}
+.card-back {
+      transform: rotateY(180deg);
+      background: url('image/banana.jpg') center center/cover no-repeat;
+}
+.card:hover .card-inner {
+      transform: scale(1.05); 
+}
+
