@@ -89,8 +89,12 @@ h1 {
       background: url('image/playing-card-back-side-isolated-on-white-clipping-path-included-2AY5GD0.jpg') center center/cover no-repeat;
 }
 .card-back {
-      transform: rotateY(180deg);
-      
+  background-position: center center;   /* căn giữa theo cả ngang và dọc */
+  background-size: contain;             /* toàn bộ ảnh vừa trong khung (giữ tỉ lệ) */
+  /* hoặc dùng background-size: cover; để ảnh phủ đầy khung (cắt bớt nếu cần) */
+  background-repeat: no-repeat;         /* không lặp ảnh */
+  transform: rotateY(180deg);
+}
 }
 .card:hover .card-inner {
       transform: scale(1.05); 
