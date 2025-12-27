@@ -1,90 +1,126 @@
-// Lấy tất cả card và container board (nếu có)
-const cards = document.querySelectorAll('.card');
-const board = document.getElementById('board'); // nếu bạn có wrapper với id="board"
-let flippedCards = [];
-let matchedCards = [];
 
-// gắn sự kiện click cho từng card
-cards.forEach(card => card.addEventListener('click', flipCard));
+class MemoryGame {
+  constructor(options = {}) {
+    this.board = document.getElementById(options.boardId || 'board');
+    this.cards = Array.from(document.querySelectorAll('.card'));
+    this.flippedCards = [];
+    this.matchedCards = [];
+    this.images = options.images || []; // optional array of CSS `url("...")` strings
 
-function flipCard() {
-  // nếu card đã được ghép hoặc đang lật thì không xử lý
-  if (this.classList.contains('matched') || this.classList.contains('flipped')) return;
-  if (flippedCards.length >= 2) return;
-
-  this.classList.add('flipped');
-  flippedCards.push(this);
-
-  if (flippedCards.length === 2) {
-    checkMatch();
+    this._boundFlip = this.flipCard.bind(this);
+    this.attachListeners();
   }
-}
 
-function checkMatch() {
-  const [card1, card2] = flippedCards;
-  const img1 = card1.querySelector('.card-back').style.backgroundImage;
-  const img2 = card2.querySelector('.card-back').style.backgroundImage;
+  attachListeners() {
+    this.cards.forEach(card => {
+      card.removeEventListener('click', this._boundFlip);
+      card.addEventListener('click', this._boundFlip);
+    });
+  }
 
-  if (img1 === img2) {
-    // đánh dấu là matched để không thể click lại
-    card1.classList.add('matched');
-    card2.classList.add('matched');
-    matchedCards.push(card1, card2);
-    flippedCards = [];
+  flipCard(event) {
+    const card = event.currentTarget || this;
+    if (card.classList.contains('matched') || card.classList.contains('flipped')) return;
+    if (this.flippedCards.length >= 2) return;
 
-    if (matchedCards.length === cards.length) {
-      setTimeout(() => alert("Congratulations! You win!"), 500);
+    card.classList.add('flipped');
+    this.flippedCards.push(card);
+
+    if (this.flippedCards.length === 2) this.checkMatch();
+  }
+
+  checkMatch() {
+    const [card1, card2] = this.flippedCards;
+    const img1 = card1.querySelector('.card-back')?.style.backgroundImage;
+    const img2 = card2.querySelector('.card-back')?.style.backgroundImage;
+
+    if (img1 === img2) {
+      card1.classList.add('matched');
+      card2.classList.add('matched');
+      this.matchedCards.push(card1, card2);
+      this.flippedCards = [];
+
+      if (this.matchedCards.length === this.cards.length) {
+        setTimeout(() => alert('Congratulations! You win!'), 500);
+      }
+    } else {
+      setTimeout(() => {
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        this.flippedCards = [];
+      }, 1000);
     }
-  } else {
-    // lật ngược sau 1s
-    setTimeout(() => {
-      card1.classList.remove('flipped');
-      card2.classList.remove('flipped');
-      flippedCards = [];
-    }, 1000);
   }
-}
 
-// Hàm xáo bài đơn giản (di chuyển các node trong container #board)
-function shuffleCards() {
-  if (!board) return; // nếu không có container thì bỏ qua
-  const nodes = Array.from(cards);
-  // Fisher-Yates shuffle trên mảng nodes
-  for (let i = nodes.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [nodes[i], nodes[j]] = [nodes[j], nodes[i]];
-  }
-  // append lại theo thứ tự đã xáo
-  nodes.forEach(node => board.appendChild(node));
-}
-function shuffleImages() {
-     const images = [
-       
-      ];
-      const shuffledImages = [...images].sort(() => Math.random() - 0.5);
-      cards.forEach((card, index) => {
-        card.querySelector('.card-back').style.backgroundImage = shuffledImages[index];
-      });
+ 
+  shuffleCards() {
+    if (!this.board) return;
+    const nodes = this.cards.slice();
+    for (let i = nodes.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nodes[i], nodes[j]] = [nodes[j], nodes[i]];
     }
-// Start game: reset trạng thái và xáo bài
-function startGame() {
-  matchedCards = [];
-  flippedCards = [];
-  cards.forEach(card => {
-    card.classList.remove('flipped', 'matched');
-    card.style.pointerEvents = 'auto';
-  });
-  shuffleImages();
-  attachListeners();
+    nodes.forEach(node => this.board.appendChild(node));
+    this.cards = nodes;
+  }
+
+  shuffleImages(images = null) {
+    const source = images && images.length ? images : this.images;
+
+    let imgs = [];
+    if (source && source.length >= this.cards.length) {
+      imgs = source.slice(0, this.cards.length);
+    } else {
+      imgs = this.cards.map(card => card.querySelector('.card-back')?.style.backgroundImage || '').filter(Boolean);
+      if (imgs.length > 0 && imgs.length < this.cards.length) {
+        const needed = this.cards.length - imgs.length;
+        for (let i = 0; i < needed; i++) imgs.push(imgs[i % imgs.length]);
+      }
+    }
+
+    if (imgs.length < this.cards.length) return; // nothing to assign
+
+    const shuffled = imgs.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    this.cards.forEach((card, idx) => {
+      const back = card.querySelector('.card-back');
+      if (back) back.style.backgroundImage = shuffled[idx] || '';
+    });
+  }
+
+  startGame() {
+    this.matchedCards = [];
+    this.flippedCards = [];
+    this.cards.forEach(card => {
+      card.classList.remove('flipped', 'matched');
+      card.style.pointerEvents = 'auto';
+    });
+    
+    this.shuffleImages();
+    this.attachListeners();
+  }
+
+  resetGame() {
+    this.matchedCards = [];
+    this.flippedCards = [];
+    this.cards.forEach(card => {
+      card.classList.remove('flipped', 'matched');
+      card.style.pointerEvents = 'auto';
+    });
+  
+    
+    this.attachListeners();
+  }
 }
 
-// Reset game: lật lại tất cả thẻ, xóa trạng thái, xáo bài
-function resetGame() {
-  matchedCards = [];
-  flippedCards = [];
-  cards.forEach(card => {
-    card.classList.remove('flipped', 'matched');
-    card.style.pointerEvents = 'auto';
-  });
-  attachListeners();
-}
+
+const memoryGame = new MemoryGame();
+window.memoryGame = memoryGame;
+window.startGame = () => memoryGame.startGame();
+window.resetGame = () => memoryGame.resetGame();
+
+
